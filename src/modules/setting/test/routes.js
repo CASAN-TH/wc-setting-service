@@ -16,7 +16,9 @@ describe('Setting CRUD routes tests', function () {
 
     before(function (done) {
         mockup = {
-            name: 'name'
+            label: 'general',
+            description: 'GENERAL',
+            parent_id: 'Product'
         };
         credentials = {
             username: 'username',
@@ -32,22 +34,35 @@ describe('Setting CRUD routes tests', function () {
         done();
     });
 
-    it('should be Setting get use token', (done)=>{
+    it('should be Setting get use token', (done) => {
         request(app)
-        .get('/api/settings')
-        .set('Authorization', 'Bearer ' + token)
-        .expect(200)
-        .end((err, res)=>{
-            if (err) {
-                return done(err);
-            }
-            var resp = res.body;
-            done();
-        });
+            .post('/api/settings')
+            .set('Authorization', 'Bearer ' + token)
+            .send(mockup)
+            .expect(200)
+            .end(function (err, res) {
+                if (err) {
+                    return done(err);
+                }
+                var resp = res.body;
+                request(app)
+                    .get('/api/settings')
+                    .set('Authorization', 'Bearer ' + token)
+                    .expect(200)
+                    .end((err, res) => {
+                        if (err) {
+                            return done(err);
+                        }
+                        var resp = res.body;
+                        assert.equal(resp.data[0].label, mockup.label)
+                        assert.equal(resp.data[0].description, mockup.description)
+                        assert.equal(resp.data[0].parent_id, mockup.parent_id)
+                        done();
+                    });
+            });
     });
 
     it('should be Setting get by id', function (done) {
-
         request(app)
             .post('/api/settings')
             .set('Authorization', 'Bearer ' + token)
@@ -68,14 +83,15 @@ describe('Setting CRUD routes tests', function () {
                         }
                         var resp = res.body;
                         assert.equal(resp.status, 200);
-                        assert.equal(resp.data.name, mockup.name);
+                        assert.equal(resp.data.label, mockup.label);
+                        assert.equal(resp.data.description, mockup.description);
+                        assert.equal(resp.data.parent_id, mockup.parent_id);
                         done();
                     });
             });
-
     });
 
-    it('should be Setting post use token', (done)=>{
+    it('should be Setting post use token', (done) => {
         request(app)
             .post('/api/settings')
             .set('Authorization', 'Bearer ' + token)
@@ -86,7 +102,9 @@ describe('Setting CRUD routes tests', function () {
                     return done(err);
                 }
                 var resp = res.body;
-                assert.equal(resp.data.name, mockup.name);
+                assert.equal(resp.data.label, mockup.label);
+                assert.equal(resp.data.description, mockup.description);
+                assert.equal(resp.data.parent_id, mockup.parent_id);
                 done();
             });
     });
@@ -104,7 +122,7 @@ describe('Setting CRUD routes tests', function () {
                 }
                 var resp = res.body;
                 var update = {
-                    name: 'name update'
+                    label: 'name update'
                 }
                 request(app)
                     .put('/api/settings/' + resp.data._id)
@@ -116,7 +134,9 @@ describe('Setting CRUD routes tests', function () {
                             return done(err);
                         }
                         var resp = res.body;
-                        assert.equal(resp.data.name, update.name);
+                        assert.equal(resp.data.label, update.label);
+                        assert.equal(resp.data.description, mockup.description);
+                        assert.equal(resp.data.parent_id, mockup.parent_id);
                         done();
                     });
             });
@@ -144,15 +164,15 @@ describe('Setting CRUD routes tests', function () {
 
     });
 
-    it('should be setting get not use token', (done)=>{
+    it('should be setting get not use token', (done) => {
         request(app)
-        .get('/api/settings')
-        .expect(403)
-        .expect({
-            status: 403,
-            message: 'User is not authorized'
-        })
-        .end(done);
+            .get('/api/settings')
+            .expect(403)
+            .expect({
+                status: 403,
+                message: 'User is not authorized'
+            })
+            .end(done);
     });
 
     it('should be setting post not use token', function (done) {

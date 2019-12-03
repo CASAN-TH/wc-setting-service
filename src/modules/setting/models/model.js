@@ -5,9 +5,17 @@ var Schema = mongoose.Schema;
 
 
 var SettingSchema = new Schema({
-    name: {
-        type: String,
-        required: 'Please fill a Setting name',
+    label: {
+        type: String
+    },
+    description: {
+        type: String
+    },
+    parent_id: {
+        type: String
+    },
+    sub_groups: {
+        type: String
     },
     created: {
         type: Date,
